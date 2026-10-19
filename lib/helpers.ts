@@ -13,3 +13,6 @@ export function formatDate(iso: string): string {
         year: 'numeric',
     })
 }
+
+// Roles that act as staff (can see and manage all requests)
+export const STAFF_ROLES: string[] = ['admin_staff', 'dept_head', 'admin']

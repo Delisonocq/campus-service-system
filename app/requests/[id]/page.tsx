@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/app/components/StatusBadge'
-import { formatDate, relName } from '@/lib/helpers'
+import { formatDate, relName, STAFF_ROLES } from '@/lib/helpers'
+import ManageForm from './ManageForm'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -15,10 +16,20 @@ export default async function RequestDetailPage({ params }: Props) {
     } = await supabase.auth.getUser()
     if (!user) redirect('/login')
 
+    const { data: me } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+    const role = me?.role as string | undefined
+    const isStaff = !!role && STAFF_ROLES.includes(role)
+
     // Row Level Security only returns the request if this user may see it
     const { data: request } = await supabase
         .from('requests')
-        .select('id, title, description, status, created_at, completed_at, service_categories(name)')
+        .select(
+            'id, title, description, status, created_at, completed_at, assigned_to, service_categories(name), requester:profiles!requester_id(full_name), assignee:profiles!assigned_to(full_name)'
+        )
         .eq('id', id)
         .single()
 
@@ -30,10 +41,35 @@ export default async function RequestDetailPage({ params }: Props) {
         .eq('request_id', id)
         .order('created_at', { ascending: true })
 
+    // Staff and the assigned person can manage the request
+    const canManage = isStaff || request.assigned_to === user.id
+
+    // Staff pick from the list of personnel
+    let personnel: { id: string; full_name: string | null }[] = []
+    if (isStaff) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .eq('role', 'personnel')
+            .order('full_name')
+        personnel = data ?? []
+    }
+
+    const backHref = isStaff
+        ? '/dashboard/admin'
+        : role === 'personnel'
+            ? '/dashboard/personnel'
+            : '/requests'
+    const backLabel = isStaff
+        ? '← Back to all requests'
+        : role === 'personnel'
+            ? '← Back to my assigned requests'
+            : '← Back to my requests'
+
     return (
         <div className="mx-auto w-full max-w-3xl px-4 py-10">
-            <Link href="/requests" className="text-sm text-slate-400 hover:text-white">
-                ← Back to my requests
+            <Link href={backHref} className="text-sm text-slate-400 hover:text-white">
+                {backLabel}
             </Link>
 
             <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-6">
@@ -45,6 +81,16 @@ export default async function RequestDetailPage({ params }: Props) {
                     <div>
                         <dt className="text-slate-500">Category</dt>
                         <dd className="text-slate-200">{relName(request.service_categories)}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-slate-500">Requested by</dt>
+                        <dd className="text-slate-200">{relName(request.requester, 'full_name')}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-slate-500">Assigned to</dt>
+                        <dd className="text-slate-200">
+                            {request.assigned_to ? relName(request.assignee, 'full_name') : 'Unassigned'}
+                        </dd>
                     </div>
                     <div>
                         <dt className="text-slate-500">Submitted</dt>
@@ -59,6 +105,19 @@ export default async function RequestDetailPage({ params }: Props) {
                 </dl>
                 <p className="whitespace-pre-wrap text-slate-300">{request.description}</p>
             </div>
+
+            {canManage && (
+                <div className="mt-6 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-6">
+                    <h2 className="mb-4 text-lg font-semibold text-white">Manage request</h2>
+                    <ManageForm
+                        requestId={request.id}
+                        currentStatus={request.status}
+                        currentAssignee={request.assigned_to}
+                        canAssign={isStaff}
+                        personnel={personnel}
+                    />
+                </div>
+            )}
 
             <h2 className="mb-3 mt-8 text-lg font-semibold text-white">Timeline</h2>
             <ol className="space-y-3">

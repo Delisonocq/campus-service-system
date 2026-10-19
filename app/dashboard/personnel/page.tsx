@@ -1,79 +1,97 @@
-/**
- * /dashboard/personnel — Placeholder for the personnel role.
- *
- * The exported page function is synchronous (no runtime data at the top level),
- * which means it prerenders into the static shell. The session read is pushed
- * into <PersonnelDashboardContent> and streamed in behind a <Suspense> boundary.
- */
-import { Suspense } from 'react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardCard from '@/app/components/DashboardCard'
+import StatusBadge from '@/app/components/StatusBadge'
+import { formatDate, relName } from '@/lib/helpers'
 
-// ---------------------------------------------------------------------------
-// Inner async component — reads cookies, lives inside <Suspense>
-// ---------------------------------------------------------------------------
-
-async function PersonnelDashboardContent() {
+export default async function PersonnelDashboardPage() {
   const supabase = await createClient()
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, role')
+    .select('full_name')
     .eq('id', user.id)
     .single()
 
-  const name = profile?.full_name ?? user.email ?? 'Personnel'
-  const role = profile?.role ?? 'personnel'
+  // Only the requests assigned to this person
+  const { data: requests } = await supabase
+    .from('requests')
+    .select(
+      'id, title, status, created_at, service_categories(name), requester:profiles!requester_id(full_name)'
+    )
+    .eq('assigned_to', user.id)
+    .order('created_at', { ascending: false })
+
+  const all = requests ?? []
+  const open = all.filter((r) => r.status === 'assigned' || r.status === 'in_progress').length
+  const done = all.filter((r) => r.status === 'resolved' || r.status === 'closed').length
 
   return (
-    <DashboardCard
-      name={name}
-      role={role}
-      description="This is the personnel operations dashboard. You can view assigned tasks, service schedules, and operational reports relevant to your department."
-      badgeClass="bg-sky-500/20 text-sky-300 ring-sky-500/30"
-    />
-  )
-}
+    <div className="mx-auto w-full max-w-5xl px-4 py-10">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white">
+          Welcome, {profile?.full_name ?? 'there'}
+        </h1>
+        <p className="text-sm text-slate-400">Requests assigned to you.</p>
+      </div>
 
-// ---------------------------------------------------------------------------
-// Loading skeleton
-// ---------------------------------------------------------------------------
-
-function DashboardSkeleton() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-lg animate-pulse rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div className="mb-6 flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl bg-white/10" />
-          <div className="space-y-2">
-            <div className="h-4 w-36 rounded bg-white/10" />
-            <div className="h-3 w-20 rounded bg-white/10" />
-          </div>
+      <div className="mb-8 grid grid-cols-3 gap-3">
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <p className="text-2xl font-bold text-white">{all.length}</p>
+          <p className="text-xs text-slate-400">Assigned to me</p>
         </div>
-        <div className="space-y-2">
-          <div className="h-3 w-full rounded bg-white/10" />
-          <div className="h-3 w-4/5 rounded bg-white/10" />
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <p className="text-2xl font-bold text-white">{open}</p>
+          <p className="text-xs text-slate-400">Open</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <p className="text-2xl font-bold text-white">{done}</p>
+          <p className="text-xs text-slate-400">Completed</p>
         </div>
       </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5">
+        {all.length === 0 ? (
+          <p className="p-8 text-center text-slate-400">
+            Nothing is assigned to you yet.
+          </p>
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-white/10 text-slate-400">
+              <tr>
+                <th className="px-4 py-3">Title</th>
+                <th className="px-4 py-3">Requested by</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {all.map((r) => (
+                <tr key={r.id} className="border-b border-white/5 last:border-0">
+                  <td className="px-4 py-3">
+                    <Link href={`/requests/${r.id}`} className="text-indigo-300 hover:underline">
+                      {r.title}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-slate-300">
+                    {relName(r.requester, 'full_name')}
+                  </td>
+                  <td className="px-4 py-3 text-slate-300">{relName(r.service_categories)}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={r.status} />
+                  </td>
+                  <td className="px-4 py-3 text-slate-400">{formatDate(r.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Page export — synchronous, prerenderable shell
-// ---------------------------------------------------------------------------
-
-export default function PersonnelDashboardPage() {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <PersonnelDashboardContent />
-    </Suspense>
   )
 }
