@@ -1,82 +1,94 @@
-/**
- * /dashboard/user — Placeholder for students and academic staff.
- *
- * The exported page function is synchronous (no runtime data at the top level),
- * which means it prerenders into the static shell. The actual session read is
- * pushed into <UserDashboardContent> and streamed in behind a <Suspense>
- * boundary — the correct Next.js 16 / Cache-Components pattern.
- */
-import { Suspense } from 'react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import DashboardCard from '@/app/components/DashboardCard'
+import StatusBadge, { STATUSES, STATUS_LABELS } from '@/app/components/StatusBadge'
+import { formatDate, relName } from '@/lib/helpers'
 
-// ---------------------------------------------------------------------------
-// Inner async component — reads cookies, lives inside <Suspense>
-// ---------------------------------------------------------------------------
-
-async function UserDashboardContent() {
+export default async function UserDashboardPage() {
   const supabase = await createClient()
-
-  // Defensive auth check (the Proxy already guards this route)
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   if (!user) redirect('/login')
 
-  // Fetch the profile row created by the database trigger on sign-up
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, role')
+    .select('full_name')
     .eq('id', user.id)
     .single()
 
-  const name = profile?.full_name ?? user.email ?? 'User'
-  const role = profile?.role ?? 'student'
+  const { data: requests } = await supabase
+    .from('requests')
+    .select('id, title, status, created_at, service_categories(name)')
+    .eq('requester_id', user.id)
+    .order('created_at', { ascending: false })
+
+  const all = requests ?? []
+  const count = (s: string) => all.filter((r) => r.status === s).length
 
   return (
-    <DashboardCard
-      name={name}
-      role={role}
-      description="This is your personal campus services dashboard. From here you can view your service requests, track updates, and access resources available to you."
-      badgeClass="bg-emerald-500/20 text-emerald-300 ring-emerald-500/30"
-    />
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Loading skeleton — shown while the session-reading content streams in
-// ---------------------------------------------------------------------------
-
-function DashboardSkeleton() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-lg animate-pulse rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div className="mb-6 flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl bg-white/10" />
-          <div className="space-y-2">
-            <div className="h-4 w-36 rounded bg-white/10" />
-            <div className="h-3 w-20 rounded bg-white/10" />
-          </div>
+    <div className="mx-auto w-full max-w-5xl px-4 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Welcome, {profile?.full_name ?? 'there'}
+          </h1>
+          <p className="text-sm text-slate-400">Your campus service requests at a glance.</p>
         </div>
-        <div className="space-y-2">
-          <div className="h-3 w-full rounded bg-white/10" />
-          <div className="h-3 w-4/5 rounded bg-white/10" />
-        </div>
+        <Link
+          href="/requests/new"
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          New request
+        </Link>
+      </div>
+
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        {STATUSES.map((s) => (
+          <Link
+            key={s}
+            href={`/requests?status=${s}`}
+            className="rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10"
+          >
+            <p className="text-2xl font-bold text-white">{count(s)}</p>
+            <p className="text-xs text-slate-400">{STATUS_LABELS[s]}</p>
+          </Link>
+        ))}
+      </div>
+
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-white">Recent requests</h2>
+        <Link href="/requests" className="text-sm text-indigo-300 hover:underline">
+          View all
+        </Link>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5">
+        {all.length === 0 ? (
+          <p className="p-8 text-center text-slate-400">
+            You have no requests yet. Click “New request” to submit one.
+          </p>
+        ) : (
+          <table className="w-full text-left text-sm">
+            <tbody>
+              {all.slice(0, 5).map((r) => (
+                <tr key={r.id} className="border-b border-white/5 last:border-0">
+                  <td className="px-4 py-3">
+                    <Link href={`/requests/${r.id}`} className="text-indigo-300 hover:underline">
+                      {r.title}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-slate-300">{relName(r.service_categories)}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={r.status} />
+                  </td>
+                  <td className="px-4 py-3 text-slate-400">{formatDate(r.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Page export — synchronous, prerenderable shell
-// ---------------------------------------------------------------------------
-
-export default function UserDashboardPage() {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <UserDashboardContent />
-    </Suspense>
   )
 }
