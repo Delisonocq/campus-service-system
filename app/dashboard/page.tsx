@@ -22,7 +22,7 @@ const ADMIN_ROLES = ['admin_staff', 'dept_head', 'admin'] as const
 // Inner async component — reads cookies and issues the redirect
 // ---------------------------------------------------------------------------
 
-async function DashboardRedirect() {
+async function DashboardRedirect(): Promise<null> {
   const supabase = await createClient()
 
   // Verify the session (Proxy already ensures auth, but we verify defensively)
@@ -54,6 +54,8 @@ async function DashboardRedirect() {
 
   // student, academic_staff, or unknown — default to /dashboard/user
   redirect('/dashboard/user')
+
+  return null
 }
 
 // ---------------------------------------------------------------------------
