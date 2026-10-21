@@ -27,7 +27,7 @@ function NavbarBrand() {
       href="/"
       className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-sm font-extrabold">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-400 text-slate-900 text-sm font-extrabold">
         C
       </span>
       <span className="hidden sm:inline">Campus Service</span>
@@ -108,7 +108,7 @@ async function NavbarAuthSection() {
  */
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-900/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-indigo-400/40 bg-slate-900/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <NavbarBrand />
 

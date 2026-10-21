@@ -26,11 +26,25 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-slate-950 text-slate-100">
+        {/* Looping video background (sits behind everything) */}
+        <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            src="/background-pulse.webm"
+            className="h-full w-full object-cover"
+          />
+          {/* Navy tint over the video: raise 60 for darker, lower for clearer */}
+          <div className="absolute inset-0 bg-[#0A1A33]/70" />
+        </div>
+
         {/* Shared navigation bar */}
         <Navbar />
 
-        {/* Page content */}
-        <main className="flex flex-1 flex-col">{children}</main>
+        {/* Page content (above the background) */}
+        <main className="relative z-10 flex flex-1 flex-col">{children}</main>
       </body>
     </html>
   )

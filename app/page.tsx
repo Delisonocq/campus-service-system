@@ -23,12 +23,14 @@ export default function HomePage() {
 
       {/* Hero text */}
       <div className="relative z-10 max-w-2xl">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-600 text-4xl font-extrabold shadow-lg shadow-indigo-500/40">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-400 text-slate-900 text-4xl font-extrabold shadow-lg shadow-indigo-400/30">
           C
         </div>
 
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-          Campus Service{' '}
+          <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
+            Campus Service
+          </span>{' '}
           <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
             Management System
           </span>
