@@ -10,7 +10,9 @@
  * This follows the "push dynamic access down" pattern from the Next.js 16 docs:
  * https://nextjs.org/docs/app/guides/authentication-with-cache-components#step-2
  */
+
 import Link from 'next/link'
+import NotificationBell from './NotificationBell'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { signOutAction } from '@/app/actions/auth'
@@ -57,6 +59,7 @@ async function NavbarAuthSection() {
   if (user) {
     return (
       <div className="flex items-center gap-3">
+        <NotificationBell />
         <Link
           href="/dashboard"
           className="rounded-md px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
