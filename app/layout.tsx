@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Campus Service Management System',
+  title: 'CampusDesk | Campus Service Management System',
   description:
     'A centralised platform for managing campus services, staff, and student requests.',
 }

@@ -8,7 +8,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Campus Service Management System',
+  title: 'CampusDesk | Campus Service Management System',
   description:
     'A centralised platform for managing campus services, staff, and student requests.',
 }
@@ -33,14 +33,14 @@ export default function HomePage() {
           className="mx-auto mb-6 drop-shadow-[0_0_24px_rgba(212,167,44,0.35)]"
         />
 
-        <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-          <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
-            Campus Service
-          </span>{' '}
-          <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
-            Management System
+        <h1 className="mb-2 text-5xl font-extrabold tracking-tight sm:text-6xl">
+          <span className="bg-gradient-to-r from-indigo-300 to-indigo-400 bg-clip-text text-transparent">
+            CampusDesk
           </span>
         </h1>
+        <p className="mb-6 text-xl font-semibold text-slate-200 sm:text-2xl">
+          Campus Service Management System
+        </p>
 
         <p className="mb-10 text-lg text-slate-400">
           A centralised platform connecting students, staff, and administrators

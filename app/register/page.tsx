@@ -9,6 +9,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { signUpAction, type AuthFormState } from '@/app/actions/auth'
+import Image from 'next/image'
 
 const initialState: AuthFormState = undefined
 
@@ -22,9 +23,14 @@ export default function RegisterPage() {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-sm">
           {/* Header */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-2xl font-extrabold">
-              C
-            </div>
+            <Image
+              src="/logo.svg"
+              alt="CampusDesk logo"
+              width={80}
+              height={80}
+              priority
+              className="mx-auto mb-6 drop-shadow-[0_0_24px_rgba(212,167,44,0.35)]"
+            />
             <h1 className="text-2xl font-bold text-white">Create an account</h1>
             <p className="mt-1 text-sm text-slate-400">
               Join the Campus Service Management System
