@@ -45,11 +45,19 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">
-          Welcome, {profile.full_name ?? 'Admin'}
-        </h1>
-        <p className="text-sm text-slate-400">All campus service requests.</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Welcome, {profile.full_name ?? 'Admin'}
+          </h1>
+          <p className="text-sm text-slate-400">All campus service requests.</p>
+        </div>
+        <Link
+          href="/dashboard/admin/reports"
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          View reports
+        </Link>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
