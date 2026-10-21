@@ -37,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             className="h-full w-full object-cover"
           />
           {/* Navy tint over the video: raise 60 for darker, lower for clearer */}
-          <div className="absolute inset-0 bg-[#0A1A33]/70" />
+          <div className="absolute inset-0 bg-[#0A1A33]/65" />
         </div>
 
         {/* Shared navigation bar */}

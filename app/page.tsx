@@ -5,6 +5,7 @@
  */
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'Campus Service Management System',
@@ -23,9 +24,14 @@ export default function HomePage() {
 
       {/* Hero text */}
       <div className="relative z-10 max-w-2xl">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-400 text-slate-900 text-4xl font-extrabold shadow-lg shadow-indigo-400/30">
-          C
-        </div>
+        <Image
+          src="/logo.svg"
+          alt="CampusDesk logo"
+          width={110}
+          height={110}
+          priority
+          className="mx-auto mb-6 drop-shadow-[0_0_24px_rgba(212,167,44,0.35)]"
+        />
 
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
           <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">

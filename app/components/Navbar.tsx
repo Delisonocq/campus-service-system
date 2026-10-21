@@ -13,6 +13,7 @@
 
 import Link from 'next/link'
 import NotificationBell from './NotificationBell'
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { signOutAction } from '@/app/actions/auth'
@@ -25,12 +26,10 @@ function NavbarBrand() {
   return (
     <Link
       href="/"
-      className="flex items-center gap-2 text-lg font-bold tracking-tight text-white"
+      className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-white"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-400 text-slate-900 text-sm font-extrabold">
-        C
-      </span>
-      <span className="hidden sm:inline">Campus Service</span>
+      <Image src="/logo.svg" alt="" width={36} height={36} priority />
+      <span className="hidden sm:inline">CampusDesk</span>
     </Link>
   )
 }
