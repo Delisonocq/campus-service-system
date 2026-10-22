@@ -66,9 +66,11 @@ body {
   }
 }
 
-/* Static icon background, used on phones and whenever the video can't play */
-.campus-bg-static {
-  background-image: url('/campus-bg.png');
-  background-size: cover;
-  background-position: center;
+/* Static icon background: phones only (video plays on larger screens) */
+@media (max-width: 767px) {
+  .campus-bg-static {
+    background-image: url('/campus-bg.png');
+    background-size: cover;
+    background-position: center;
+  }
 }
