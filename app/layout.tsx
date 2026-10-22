@@ -27,17 +27,21 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     >
       <body className="flex min-h-full flex-col bg-slate-950 text-slate-100">
         {/* Looping video background (sits behind everything) */}
-        <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <div
+          aria-hidden
+          className="campus-bg-static pointer-events-none fixed inset-0 z-0"
+        >
+          {/* Video only on larger screens; phones see the static image behind it */}
           <video
             autoPlay
             muted
             loop
             playsInline
             src="/background-pulse.webm"
-            className="h-full w-full object-cover"
+            className="hidden h-full w-full object-cover md:block"
           />
-          {/* Navy tint over the video: raise 60 for darker, lower for clearer */}
-          <div className="absolute inset-0 bg-[#0A1A33]/65" />
+          {/* Navy tint over the background: raise 60 for darker, lower for clearer */}
+          <div className="absolute inset-0 bg-[#0A1A33]/60" />
         </div>
 
         {/* Shared navigation bar */}

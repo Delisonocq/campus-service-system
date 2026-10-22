@@ -65,3 +65,10 @@ body {
     animation: none;
   }
 }
+
+/* Static icon background, used on phones and whenever the video can't play */
+.campus-bg-static {
+  background-image: url('/campus-bg.png');
+  background-size: cover;
+  background-position: center;
+}
